@@ -49,27 +49,21 @@ public class DisplayAlbum extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_album);
 
-        lbAlbum = findViewById(R.id.lbAlbumName);
-        btBack = findViewById(R.id.btnBack);
-        btUpload = findViewById(R.id.btnUpload);
-        imageList = findViewById(R.id.imageList);
-        editButton = findViewById(R.id.btnEditAlbum);
-
-
-
         Intent myIntent = getIntent(); // gets the previously created intent
         this.albums = (ArrayList<Album>) myIntent.getSerializableExtra("album");
         this.selectedAlbumIndex = myIntent.getIntExtra("selectedAlbum", -1);
-
-        if(selectedAlbumIndex != -1){
-            selectedAlbum = this.albums.get(selectedAlbumIndex);
-            String albumText = selectedAlbum.getTitle() + " Album";
-            lbAlbum.setText(albumText);
+        if(selectedAlbumIndex == -1){
+            return;
         }
+        selectedAlbum = this.albums.get(selectedAlbumIndex);
+
+        lbAlbum = findViewById(R.id.lbAlbumName);
+        String albumText = selectedAlbum.getTitle() + " Album";
+        lbAlbum.setText(albumText);
 
 
 
-
+        btBack = findViewById(R.id.btnBack);
         btBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -80,6 +74,7 @@ public class DisplayAlbum extends AppCompatActivity {
             }
         });
 
+        btUpload = findViewById(R.id.btnUpload);
         btUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -95,7 +90,7 @@ public class DisplayAlbum extends AppCompatActivity {
                 }
             }});
 
-
+        imageList = findViewById(R.id.imageList);
         imageList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position,long arg3) {
@@ -109,11 +104,9 @@ public class DisplayAlbum extends AppCompatActivity {
             }
         });
 
-        if(PermissionClass.checkPermissionForReadExtertalStorage(DisplayAlbum.this)) {
-            //if(PermissionClass.hasPermissions(DisplayAlbum.this, ))
-            updateList();
-        }
 
+
+        editButton = findViewById(R.id.btnEditAlbum);
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -123,7 +116,21 @@ public class DisplayAlbum extends AppCompatActivity {
                 startActivityForResult(intent, 10);
             }});
 
+
+
+
+        if(PermissionClass.checkPermissionForReadExtertalStorage(DisplayAlbum.this)) {
+            //if(PermissionClass.hasPermissions(DisplayAlbum.this, ))
+            updateList();
+        }
     }
+
+
+    private void updateList(){
+        CustomImageClass cic = new CustomImageClass(this, selectedAlbum);
+        imageList.setAdapter(cic);
+    }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data)
@@ -132,7 +139,7 @@ public class DisplayAlbum extends AppCompatActivity {
             //TODO: action
             ClipData mClipData = data.getClipData();
             boolean hasAdded = false;
-        // mBitmapsSelected = new ArrayList<Bitmap>();
+
             if(mClipData != null) {
 
                 for (int i = 0; i < mClipData.getItemCount(); i++) {
@@ -186,11 +193,7 @@ public class DisplayAlbum extends AppCompatActivity {
         }
     }
 
-    private void updateList(){
 
-        CustomImageClass cic = new CustomImageClass(this, selectedAlbum);
-        imageList.setAdapter(cic);
-    }
 
 
 }

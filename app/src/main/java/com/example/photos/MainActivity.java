@@ -36,9 +36,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        albumView = (ListView)findViewById(R.id.listview);
-        addAlbum = findViewById(R.id.btAddAlbum);
-
         if(ContextCompat.checkSelfPermission(MainActivity.this,
                 Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED)
@@ -46,7 +43,9 @@ public class MainActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                     MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
 
+        albums = SaveLoad.loadAlbums(MainActivity.this);
 
+        addAlbum = findViewById(R.id.btAddAlbum);
         addAlbum.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,9 +56,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        albums = SaveLoad.loadAlbums(MainActivity.this);
-        updateList();
-
+        albumView = (ListView)findViewById(R.id.listview);
         albumView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position,long arg3) {
@@ -75,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        updateList();
     }
 
 
@@ -94,18 +91,12 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 0) {
-            if(resultCode == Activity.RESULT_OK){
+            if(resultCode == Activity.RESULT_OK) {
                 //String result=data.getStringExtra("result");
                 this.albums = (ArrayList<Album>) data.getSerializableExtra("albums");
                 updateList();
             }
-            if (resultCode == Activity.RESULT_CANCELED) {
-
-            }
         }else if(requestCode == 1){
-            this.albums = (ArrayList<Album>) data.getSerializableExtra("albums");
-            updateList();
-        }else if(requestCode == 10){
             this.albums = (ArrayList<Album>) data.getSerializableExtra("albums");
             updateList();
         }

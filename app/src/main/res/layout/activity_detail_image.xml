@@ -6,6 +6,19 @@
     android:layout_height="match_parent"
     tools:context=".DetailImage">
 
+    <TextView
+        android:id="@+id/txDateView"
+        android:layout_width="161dp"
+        android:layout_height="17dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="Date"
+        app:layout_constraintEnd_toStartOf="@+id/btnChangeCaption"
+        app:layout_constraintHorizontal_bias="0.173"
+        app:layout_constraintStart_toEndOf="@+id/textView8"
+        app:layout_constraintTop_toBottomOf="@+id/txCaption" />
+
     <Button
         android:id="@+id/btMove2"
         android:layout_width="292dp"
@@ -55,20 +68,16 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-
     <TextView
         android:id="@+id/txCaption"
-        android:layout_width="165dp"
-        android:layout_height="33dp"
+        android:layout_width="161dp"
+        android:layout_height="17dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:text="TextView"
-        app:layout_constraintBottom_toBottomOf="@+id/btnChangeCaption"
         app:layout_constraintEnd_toStartOf="@+id/btnChangeCaption"
-        app:layout_constraintHorizontal_bias="0.571"
+        app:layout_constraintHorizontal_bias="0.185"
         app:layout_constraintStart_toEndOf="@+id/textView5"
-        app:layout_constraintTop_toTopOf="@+id/btnChangeCaption"
-        app:layout_constraintVertical_bias="0.272" />
+        app:layout_constraintTop_toTopOf="@+id/btnChangeCaption" />
 
     <Button
         android:id="@+id/btnChangeCaption"
@@ -83,14 +92,23 @@
 
     <TextView
         android:id="@+id/textView5"
-        android:layout_width="65dp"
-        android:layout_height="31dp"
-        android:layout_marginStart="8dp"
+        android:layout_width="54dp"
+        android:layout_height="18dp"
+        android:layout_marginStart="16dp"
         android:text="Caption:"
         app:layout_constraintBottom_toBottomOf="@+id/txCaption"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/txCaption"
         app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="54dp"
+        android:layout_height="18dp"
+        android:layout_marginStart="16dp"
+        android:text="Date"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/txDateView" />
 
     <ImageView
         android:id="@+id/detailImageView"
@@ -116,6 +134,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
+    <Button
+        android:id="@+id/btSlideShow"
+        android:layout_width="124dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="Slideshow"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ListView
         android:id="@+id/tagView"

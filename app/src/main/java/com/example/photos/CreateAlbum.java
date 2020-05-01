@@ -34,13 +34,9 @@ public class CreateAlbum extends AppCompatActivity {
         Intent myIntent = getIntent(); // gets the previously created intent
         this.albums = (ArrayList<Album>) myIntent.getSerializableExtra("album");
 
-
-
-
-        btSave = findViewById(R.id.btSave);
-        btCancel = findViewById(R.id.btCancel);
         txAlbum = findViewById(R.id.txAlbumName);
 
+        btSave = findViewById(R.id.btSave);
         btSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -76,6 +72,8 @@ public class CreateAlbum extends AppCompatActivity {
                 }
             }
         });
+
+        btCancel = findViewById(R.id.btCancel);
         btCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

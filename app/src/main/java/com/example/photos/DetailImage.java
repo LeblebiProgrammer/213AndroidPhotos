@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -31,6 +32,7 @@ public class DetailImage extends AppCompatActivity {
     Button btCopy;
     Button btDelete;
 //    Button btAddTag;
+    Button btSlideshow;
     Button btCaption;
     Button btBackAlbum;
     //ToggleButton personLocation;
@@ -38,6 +40,7 @@ public class DetailImage extends AppCompatActivity {
 //    ListView tagView;
 //    EditText tagValue;
     TextView txCaption;
+    TextView txDate;
     ImageView iv;
 
     private ArrayList<Album> albums;
@@ -64,28 +67,29 @@ public class DetailImage extends AppCompatActivity {
             return;
         }
 
-        btMove = findViewById(R.id.btMove);
-        btCopy = findViewById(R.id.btCopy);
-        btDelete = findViewById(R.id.btDelete);
-//        btAddTag = findViewById(R.id.btnAddTag);
-        btCaption = findViewById(R.id.btnChangeCaption);
-        btBackAlbum = findViewById(R.id.btBackAlbum);
-
         txCaption = findViewById(R.id.txCaption);
+
+        txDate = findViewById(R.id.txDateView);
+
         iv = findViewById(R.id.detailImageView);
-        iv.setImageURI(Uri.parse(currPhoto.getImageFile()));
+
+        btMove = findViewById(R.id.btMove);
         btMove.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ListAlertView(false);
             }
         });
+
+        btCopy = findViewById(R.id.btCopy);
         btCopy.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ListAlertView(true);
             }
         });
+
+        btDelete = findViewById(R.id.btDelete);
         btDelete.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -106,6 +110,8 @@ public class DetailImage extends AppCompatActivity {
             }
 
         });
+
+        btCaption = findViewById(R.id.btnChangeCaption);
         btCaption.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -113,6 +119,8 @@ public class DetailImage extends AppCompatActivity {
 
             }
         });
+
+        btBackAlbum = findViewById(R.id.btBackAlbum);
         btBackAlbum.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -124,6 +132,18 @@ public class DetailImage extends AppCompatActivity {
             }
         });
 
+        btSlideshow = findViewById(R.id.btSlideShow);
+        btSlideshow.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DetailImage.this, Slideshow.class);
+                intent.putExtra("albums", albums);
+                intent.putExtra("selectedAlbum", selectedAlbumIndex);
+                intent.putExtra("selectedPhoto", selectedPhotoIndex);
+                startActivityForResult(intent, 11);
+            }
+        });
+        updateView();
     }
 
 
@@ -254,4 +274,21 @@ public class DetailImage extends AppCompatActivity {
         finish();
     }
 
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        if(requestCode == 11){
+            this.albums = (ArrayList<Album>) data.getSerializableExtra("albums");
+            this.selectedAlbumIndex = data.getIntExtra("selectedAlbum", -1);
+            this.selectedPhotoIndex = data.getIntExtra("selectedPhoto",-1);
+            currPhoto = selectedAlbum.getPhoto(selectedPhotoIndex);
+            updateView();
+        }
+    }
+
+    private void updateView(){
+        txCaption.setText(currPhoto.getCaption());
+        txDate.setText(currPhoto.getDate());
+        iv.setImageURI(Uri.parse(currPhoto.getImageFile()));
+    }
 }

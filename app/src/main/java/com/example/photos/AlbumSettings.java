@@ -35,21 +35,20 @@ public class AlbumSettings extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_album_settings);
 
-        btnChangeName = findViewById(R.id.btnEditAlbum);
-        btnDeleteAlbum = findViewById(R.id.btnDeleteAlbum);
-        albumName = findViewById(R.id.lbAlbumNameSettings);
-        btnChangeName = findViewById(R.id.btnChangeAlbum);
-        btnBack = findViewById(R.id.btnBackToAlbum);
-
         Intent myIntent = getIntent(); // gets the previously created intent
         this.albums = (ArrayList<Album>) myIntent.getSerializableExtra("albums");
         this.selectedAlbumIndex = myIntent.getIntExtra("selectedAlbum", -1);
+
         if(selectedAlbumIndex == -1){
             return;
         }
-        currAlbum = albums.get(selectedAlbumIndex);
+
+
+        albumName = findViewById(R.id.lbAlbumNameSettings);
         albumName.setText(currAlbum.getTitle());
 
+
+        btnChangeName = findViewById(R.id.btnEditAlbum);
         btnChangeName.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,6 +56,7 @@ public class AlbumSettings extends AppCompatActivity {
             }
         });
 
+        btnDeleteAlbum = findViewById(R.id.btnDeleteAlbum);
         btnDeleteAlbum.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,6 +79,8 @@ public class AlbumSettings extends AppCompatActivity {
                 builder.show();
             }
         });
+
+        btnBack = findViewById(R.id.btnBackToAlbum);
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
