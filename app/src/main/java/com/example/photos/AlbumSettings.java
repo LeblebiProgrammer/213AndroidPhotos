@@ -42,13 +42,13 @@ public class AlbumSettings extends AppCompatActivity {
         if(selectedAlbumIndex == -1){
             return;
         }
-
+        currAlbum = albums.get(selectedAlbumIndex);
 
         albumName = findViewById(R.id.lbAlbumNameSettings);
         albumName.setText(currAlbum.getTitle());
 
 
-        btnChangeName = findViewById(R.id.btnEditAlbum);
+        btnChangeName = findViewById(R.id.btnChangeAlbum);
         btnChangeName.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {

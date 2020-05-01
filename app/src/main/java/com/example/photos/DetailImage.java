@@ -12,6 +12,8 @@ import android.nfc.Tag;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -31,13 +33,13 @@ public class DetailImage extends AppCompatActivity {
     Button btMove;
     Button btCopy;
     Button btDelete;
-//    Button btAddTag;
+    Button btAddTag;
     Button btSlideshow;
     Button btCaption;
     Button btBackAlbum;
     //ToggleButton personLocation;
 
-//    ListView tagView;
+    ListView tagView;
 //    EditText tagValue;
     TextView txCaption;
     TextView txDate;
@@ -102,7 +104,7 @@ public class DetailImage extends AppCompatActivity {
 
                         selectedAlbum.removePhoto(selectedPhotoIndex);
                         SaveLoad.saveAlbum(DetailImage.this, albums);
-                        backToActivity(false);
+                        backToActivity();
                     }
                 });
                 builder.setNeutralButton("No", null);
@@ -143,7 +145,38 @@ public class DetailImage extends AppCompatActivity {
                 startActivityForResult(intent, 11);
             }
         });
-        updateView();
+
+        btAddTag = findViewById(R.id.btnManageTags);
+        btAddTag.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DetailImage.this, ManageTags.class);
+                intent.putExtra("albums", albums);
+                intent.putExtra("selectedAlbum", selectedAlbumIndex);
+                intent.putExtra("selectedPhoto", selectedPhotoIndex);
+                startActivityForResult(intent, 12);
+            }
+        });
+
+        tagView = findViewById(R.id.tagView);
+        tagView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position,long arg3) {
+                view.setSelected(true);
+                //System.out.println(position);
+                Intent intent = new Intent(DetailImage.this, EditTag.class);
+                intent.putExtra("albums", albums);
+                intent.putExtra("selectedAlbum", selectedAlbumIndex);
+                intent.putExtra("selectedPhoto", selectedPhotoIndex);
+                intent.putExtra("selectedTag", position);
+                startActivityForResult(intent, 13);
+            }
+        });
+
+
+
+        updateView(false);
+        updateView(true);
     }
 
 
@@ -247,30 +280,22 @@ public class DetailImage extends AppCompatActivity {
                     SaveLoad.saveAlbum(DetailImage.this, albums);
                 }
                 if(backHome == true){
-                    backToActivity(true);
+                    backToActivity();
                 }
             }
         });
         builder.setNegativeButton("Cancel", null);
-// create and show the alert dialog
+
         AlertDialog dialog = builder.create();
         dialog.show();
     }
 
-    private void backToActivity(boolean backToHome){
-        Intent intent;
-        if(backToHome == false) {
-            intent = new Intent(DetailImage.this, DisplayAlbum.class);
-            intent.putExtra("albums", albums);
-            intent.putExtra("selectedAlbum", selectedAlbumIndex);
-            setResult(Activity.RESULT_OK, intent);
+    private void backToActivity(){
+        Intent intent = new Intent(DetailImage.this, DisplayAlbum.class);
+        intent.putExtra("albums", albums);
+        intent.putExtra("selectedAlbum", selectedAlbumIndex);
+        setResult(Activity.RESULT_OK, intent);
 
-        }else{
-            intent = new Intent(DetailImage.this, DisplayAlbum.class);
-            intent.putExtra("albums", albums);
-            intent.putExtra("selectedAlbum", -1);
-            setResult(Activity.RESULT_OK, intent);
-        }
         finish();
     }
 
@@ -282,13 +307,38 @@ public class DetailImage extends AppCompatActivity {
             this.selectedAlbumIndex = data.getIntExtra("selectedAlbum", -1);
             this.selectedPhotoIndex = data.getIntExtra("selectedPhoto",-1);
             currPhoto = selectedAlbum.getPhoto(selectedPhotoIndex);
-            updateView();
+            updateView(false);
+        }else if (requestCode == 12){
+            this.albums = (ArrayList<Album>) data.getSerializableExtra("albums");
+            this.selectedAlbumIndex = data.getIntExtra("selectedAlbum", -1);
+            this.selectedPhotoIndex = data.getIntExtra("selectedPhoto",-1);
+            selectedAlbum = albums.get(selectedAlbumIndex);
+            currPhoto = selectedAlbum.getPhoto(selectedPhotoIndex);
+            updateView(true);
+        }
+        else if (requestCode == 13){
+            this.albums = (ArrayList<Album>) data.getSerializableExtra("albums");
+            this.selectedAlbumIndex = data.getIntExtra("selectedAlbum", -1);
+            this.selectedPhotoIndex = data.getIntExtra("selectedPhoto",-1);
+            selectedAlbum = albums.get(selectedAlbumIndex);
+            currPhoto = selectedAlbum.getPhoto(selectedPhotoIndex);
+            updateView(true);
         }
     }
 
-    private void updateView(){
-        txCaption.setText(currPhoto.getCaption());
-        txDate.setText(currPhoto.getDate());
-        iv.setImageURI(Uri.parse(currPhoto.getImageFile()));
+    private void updateView(boolean updateTag){
+        if(updateTag == false) {
+            txCaption.setText(currPhoto.getCaption());
+            txDate.setText(currPhoto.getDate());
+            iv.setImageURI(Uri.parse(currPhoto.getImageFile()));
+        }else{
+            ArrayList<String> list = new ArrayList<String>();
+            ArrayList<tag>tagArr = currPhoto.getTags();
+            for(int i = 0; i< tagArr.size(); i++){
+                list.add(tagArr.get(i).toString());
+            }
+            ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, list);
+            tagView.setAdapter(arrayAdapter);
+        }
     }
 }

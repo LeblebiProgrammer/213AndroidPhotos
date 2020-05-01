@@ -13,7 +13,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.App">
-        <activity android:name=".Slideshow"></activity>
+        <activity android:name=".EditTag"></activity>
+        <activity android:name=".ManageTags" />
+        <activity android:name=".Slideshow" />
         <activity android:name=".AlbumSettings" />
         <activity android:name=".DetailImage" />
         <activity android:name=".DisplayAlbum" />
