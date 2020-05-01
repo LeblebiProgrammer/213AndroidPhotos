@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class Photo implements Serializable {
+public class Photo implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 1L;
     transient Bitmap myImage;

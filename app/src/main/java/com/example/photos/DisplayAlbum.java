@@ -160,8 +160,14 @@ public class DisplayAlbum extends AppCompatActivity {
             this.selectedAlbumIndex = data.getIntExtra("selectedAlbum", -1);
             if(selectedAlbumIndex != -1){
                 this.selectedAlbum = albums.get(selectedAlbumIndex);
+                updateList();
             }
-            updateList();
+            else{
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("albums", albums);
+                setResult(Activity.RESULT_OK, returnIntent);
+                finish();
+            }
         }
         else if(requestCode == 10){
             this.albums = (ArrayList<Album>) data.getSerializableExtra("albums");

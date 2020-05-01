@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 
 import Data.Album;
 import Data.Photo;
+import Data.tag;
 import Util.SaveLoad;
 
 public class DetailImage extends AppCompatActivity {
@@ -39,9 +41,9 @@ public class DetailImage extends AppCompatActivity {
     ImageView iv;
 
     private ArrayList<Album> albums;
-    //private Album selectedAlbum;
-    private int albumIndex;
-    private int photoIndex;
+    private Album selectedAlbum;
+    private int selectedAlbumIndex;
+    private int selectedPhotoIndex;
     private Photo currPhoto;
 
     @Override
@@ -52,10 +54,12 @@ public class DetailImage extends AppCompatActivity {
         //Intent
         Intent myIntent = getIntent(); // gets the previously created intent
         this.albums = (ArrayList<Album>) myIntent.getSerializableExtra("albums");
-        this.albumIndex = myIntent.getIntExtra("selectedAlbum", -1);
-        this.photoIndex = myIntent.getIntExtra("selectedPhoto", -1);
-        if(photoIndex != -1){
-            currPhoto = albums.get(albumIndex).getPhoto(photoIndex);
+        this.selectedAlbumIndex = myIntent.getIntExtra("selectedAlbum", -1);
+        this.selectedPhotoIndex = myIntent.getIntExtra("selectedPhoto", -1);
+
+        if(selectedPhotoIndex != -1){
+            this.selectedAlbum = albums.get(selectedAlbumIndex);
+            currPhoto = selectedAlbum.getPhoto(selectedPhotoIndex);
         }else{
             return;
         }
@@ -66,32 +70,42 @@ public class DetailImage extends AppCompatActivity {
 //        btAddTag = findViewById(R.id.btnAddTag);
         btCaption = findViewById(R.id.btnChangeCaption);
         btBackAlbum = findViewById(R.id.btBackAlbum);
-//        personLocation = findViewById(R.id.togglePerLoc);
-//        tagView = findViewById(R.id.tagView);
-//        tagValue = findViewById(R.id.txTagValue);
+
         txCaption = findViewById(R.id.txCaption);
         iv = findViewById(R.id.detailImageView);
         iv.setImageURI(Uri.parse(currPhoto.getImageFile()));
         btMove.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ListAlertView(false);
             }
         });
         btCopy.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ListAlertView(true);
             }
         });
         btDelete.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(DetailImage.this);
+                builder.setCancelable(true);
+                builder.setTitle("Delete Album");
+                builder.setMessage("This will delete the Photo. Continue?");
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        selectedAlbum.removePhoto(selectedPhotoIndex);
+                        SaveLoad.saveAlbum(DetailImage.this, albums);
+                        backToActivity(false);
+                    }
+                });
+                builder.setNeutralButton("No", null);
+                builder.show();
             }
+
         });
-//        btAddTag.setOnClickListener( new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//            }
-//        });
         btCaption.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -104,7 +118,7 @@ public class DetailImage extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(DetailImage.this, DisplayAlbum.class);
                 intent.putExtra("albums", albums);
-                intent.putExtra("selectedAlbum", albumIndex);
+                intent.putExtra("selectedAlbum", selectedAlbumIndex);
                 setResult(Activity.RESULT_CANCELED, intent);
                 finish();
             }
@@ -139,6 +153,105 @@ public class DetailImage extends AppCompatActivity {
         });
         AlertDialog b = dialogBuilder.create();
         b.show();
+    }
+
+    public void ListAlertView(boolean moveOrCopy){
+        AlertDialog.Builder builder = new AlertDialog.Builder(DetailImage.this);
+        builder.setTitle("Choose an animal");
+
+// add a list
+        String[] otherTitles = new String[albums.size()];
+        boolean []otherBool = new boolean[albums.size()];
+        for (int i = 0; i < albums.size(); i++) {
+            otherTitles[i] = albums.get(i).getTitle();
+            otherBool[i] = false;
+        }
+        int moveLocation = 0;
+
+        if(moveOrCopy == true) {
+            builder.setMultiChoiceItems(otherTitles, otherBool, new DialogInterface.OnMultiChoiceClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                    // user checked or unchecked a box
+                    otherBool[which] = isChecked;
+                }
+            });
+        }else{
+            otherBool[moveLocation] = true;
+            builder.setSingleChoiceItems(otherTitles, moveLocation, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // user checked an item
+                    otherBool[moveLocation] = false;
+                    otherBool[which] = true;
+                }
+            });
+        }
+// add OK and Cancel buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                boolean backHome = false;
+                boolean toSave = false;
+                for(int i = 0; i< otherBool.length; i++){
+                    if(otherBool[i] == true){
+                        Photo photo = selectedAlbum.getPhoto(selectedPhotoIndex);
+                        if(moveOrCopy == false){
+                            Album chosenAlbum = albums.get(i);
+                            if(i != selectedAlbumIndex) {
+                                chosenAlbum.addPhoto(photo);
+                                selectedAlbum.removePhoto(selectedPhotoIndex);
+                                backHome = true;
+                                toSave = true;
+                                break;
+                            }
+                        }
+                        else {
+                            //tocopy
+                            Album chosenAlbum = albums.get(i);
+                            toSave = true;
+                            try {
+                                Photo clonedPhoto = photo.clone();
+                                ArrayList<tag> clonedTag = (ArrayList<tag>) photo.getTags().clone();
+                                clonedPhoto.setTag(clonedTag);
+                                chosenAlbum.addPhoto(clonedPhoto);
+
+                            }catch (Exception ex){
+                                System.out.println(ex.toString());
+                            }
+
+                        }
+                    }
+                }
+                if(toSave == true){
+                    SaveLoad.saveAlbum(DetailImage.this, albums);
+                }
+                if(backHome == true){
+                    backToActivity(true);
+                }
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+// create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void backToActivity(boolean backToHome){
+        Intent intent;
+        if(backToHome == false) {
+            intent = new Intent(DetailImage.this, DisplayAlbum.class);
+            intent.putExtra("albums", albums);
+            intent.putExtra("selectedAlbum", selectedAlbumIndex);
+            setResult(Activity.RESULT_OK, intent);
+
+        }else{
+            intent = new Intent(DetailImage.this, DisplayAlbum.class);
+            intent.putExtra("albums", albums);
+            intent.putExtra("selectedAlbum", -1);
+            setResult(Activity.RESULT_OK, intent);
+        }
+        finish();
     }
 
 }
